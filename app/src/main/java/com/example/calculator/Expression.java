@@ -4,9 +4,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TooManyListenersException;
 
 public class Expression {
     List<Token> tokenList;
+    public static Token mulToken = new Token(Token.Type.OPERATION,
+            App.getContext().getResources().getString(R.string.calc_mul)){{ idString = R.string.calc_mul;}};
 
     public Expression(){
         tokenList = new ArrayList<Token>();
@@ -18,8 +21,11 @@ public class Expression {
             case NUMBER:
                 if (last.type == Token.Type.NUMBER)
                     last.string += token.string;
-                else
+                else {
+                    if (last.type == Token.Type.PAR_RIGHT)
+                        tokenList.add(new Token(mulToken));
                     tokenList.add(token);
+                }
                 if (last.type == Token.Type.NEGOTIATION)
                     token.toggleNegative();
                 break;
@@ -32,14 +38,29 @@ public class Expression {
                 }
                 break;
             case NEGOTIATION:
-                if (last.type == Token.Type.NUMBER)
-                    last.toggleNegative();
-                else if (last.type == Token.Type.NEGOTIATION)
-                    removeLast();
-                else
-                    tokenList.add(token);
+                switch (last.type){
+                    case NUMBER:
+                        last.toggleNegative();
+                        break;
+                    case NEGOTIATION:
+                        removeLast();
+                        break;
+                    case OPERATION:
+                        if (last.subtype == Token.Subtype.ADDITION) {
+                            last.subtype = Token.Subtype.SUBTRACTION;
+                            last.string = App.getStringFromResource(R.string.calc_sub);
+                        }
+                        else if (last.subtype == Token.Subtype.SUBTRACTION) {
+                            last.subtype = Token.Subtype.ADDITION;
+                            last.string = App.getStringFromResource(R.string.calc_add);
+                        }
+                        break;
+                    default:
+                        tokenList.add(token);
+                }
                 break;
 
+            case PAR_LEFT:
             case FUNCTION:
             case MACRO:
             case CONSTANT:
@@ -48,9 +69,18 @@ public class Expression {
                         last.type != Token.Type.OPERATION &&
                         last.type != Token.Type.MACRO &&
                         last.type != Token.Type.FUNCTION)
-                    tokenList.add(new Token(Token.Type.OPERATION,
-                            App.getContext().getResources().getString(R.string.calc_mul)));
+                    tokenList.add(new Token(mulToken));
                 tokenList.add(token);
+                break;
+
+            case OPERATION:
+                if (last.type == Token.Type.OPERATION)
+                    removeLast();
+                else if (last.type != Token.Type.NULL &&
+                        last.type != Token.Type.PAR_LEFT &&
+                        last.type != Token.Type.MACRO &&
+                        last.type != Token.Type.FUNCTION)
+                    tokenList.add(token);
                 break;
 
             case BACKSPACE:
@@ -61,8 +91,16 @@ public class Expression {
                     removeLast();
                 break;
 
-            default:
+            case PAR_RIGHT:
                 tokenList.add(token);
+                break;
+
+            case RESET:
+                tokenList.clear();
+                break;
+
+            default:
+                Log.d("DEFAULT (not appended)", token.type.toString());
         }
     }
 

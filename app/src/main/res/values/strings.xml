@@ -2,6 +2,7 @@
     <string name="app_name">calculator</string>
 <!--    Keyboard    -->
     <string name="calc_reset">C</string>
+    <string name="calc_eq">=</string>
     <string name="calc_par_left">(</string>
     <string name="calc_par_right">)</string>
     <string name="calc_div">\u00f7</string>
@@ -10,7 +11,6 @@
     <string name="calc_add">+</string>
     <string name="calc_neg">+/-</string>
     <string name="calc_dot">.</string>
-    <string name="calc_eq">=</string>
     <string name="calc_number0">0</string>
     <string name="calc_number1">1</string>
     <string name="calc_number2">2</string>
@@ -26,15 +26,16 @@
     <string name="calc_pow2">x\u00b2</string>
     <string name="calc_pow3">x\u00b3</string>
     <string name="calc_2pow">2\u02e3</string>
-    <string name="calc_one_over">1/x</string>
     <string name="calc_sin">sin</string>
     <string name="calc_cos">cos</string>
     <string name="calc_tan">tan</string>
     <string name="calc_log">log</string>
     <string name="calc_ln">ln</string>
+    <string name="calc_abs">|x|</string>
     <string name="calc_pi">\u03c0</string>
     <string name="calc_e">e</string>
-    <string name="calc_abs">|x|</string>
-<!--    Backspace   -->
-    <string name="calc_backspace">\u2408</string>
+    <string name="calc_one_over">1/x</string>
+    <!--    Other   -->
+    <string name="calc_backspace">\u232b</string>
+    <string name="calc_error">ERROR!</string>
 </resources>

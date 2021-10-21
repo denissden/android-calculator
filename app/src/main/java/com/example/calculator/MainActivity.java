@@ -8,14 +8,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.evgenii.jsevaluator.JsEvaluator;
+import com.evgenii.jsevaluator.interfaces.JsCallback;
 
-import kotlin.Triple;
+import org.w3c.dom.Text;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 public class MainActivity extends AppCompatActivity implements KeyboardInterface{
 
     private Expression expression;
+    JsEvaluator jsEvaluator = new JsEvaluator(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,17 +32,37 @@ public class MainActivity extends AppCompatActivity implements KeyboardInterface
 
     @Override
     public void onButtonClick(String msg){
-        Key key = KeyboardTable.ConvertKey(msg);
-        expression.append(new Token(key));
+        Token key = TokenTable.stringToToken(msg);
+        expression.append(key);
 
-        Log.d("clicked", key.string + " " + key.type.toString());
+        if (key.type == Token.Type.EQUALS){
+            solveExpressionIntoTextView(findViewById(R.id.textView_result));
+        }
+
+        Log.d("clicked", key.string + " " + key.type.toString() + " " + key.subtype.toString());
 
         renderText();
     }
 
+    public void solveExpressionIntoTextView(TextView textView){
+        textView.setText("");
+        String js = ExpressionCompiler.compile(expression);
+        jsEvaluator.evaluate(js, new JsCallback() {
+            @Override
+            public void onResult(String s) {
+                textView.setText(s);
+            }
+
+            @Override
+            public void onError(String s) {
+                textView.setText(App.getStringFromResource(R.string.calc_error));
+            }
+        });
+    }
+
     public void onBackspaceClick(View v){
         Log.d("clicked", "BACKSPACE");
-        expression.append(new Token(Key.Type.BACKSPACE));
+        expression.append(new Token(Token.Type.BACKSPACE));
 
         renderText();
     }
