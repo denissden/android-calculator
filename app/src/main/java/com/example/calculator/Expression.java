@@ -92,7 +92,11 @@ public class Expression {
                 break;
 
             case PAR_RIGHT:
-                tokenList.add(token);
+                if (last.type == Token.Type.PAR_LEFT)
+                    removeLast();
+                else if (last.type != Token.Type.FUNCTION &&
+                        last.type != Token.Type.OPERATION)
+                    tokenList.add(token);
                 break;
 
             case RESET:
